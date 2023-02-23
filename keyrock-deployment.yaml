@@ -37,7 +37,7 @@ spec:
             - name: IDM_DB_HOST
               value: mysql
             - name: IDM_DB_PASS
-              value: test1234
+              value: secret
             - name: IDM_DB_USER
               value: root
             - name: IDM_EMAIL_HOST
