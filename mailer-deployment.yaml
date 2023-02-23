@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.26.0 (40646f47)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mailer
+  name: mailer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mailer
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert
+        kompose.version: 1.26.0 (40646f47)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/: "true"
+        io.kompose.service: mailer
+    spec:
+      containers:
+        - env:
+            - name: ACCEPTED_NETWORKS
+              value: 172.18.1.0/24
+            - name: EXT_RELAY_HOST
+              value: <hostname>
+            - name: EXT_RELAY_PORT
+              value: "25"
+            - name: SMTP_LOGIN
+              value: <login>
+            - name: SMTP_PASSWORD
+              value: <password>
+            - name: USE_TLS
+              value: "no"
+          image: mazdermind/docker-mail-relay
+          name: mailer
+          ports:
+            - containerPort: 25
+          resources: {}
+      hostname: mailer
+      restartPolicy: Always
+status: {}
