@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlagent
+  labels:
+    version: v2
+    app: keyrock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keyrock
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: keyrock
+        version: v2
+    spec:
+      containers:
+      - name: keyrock
+        image: ubuntu
+        command: [ "sleep" ]
+        args: [ "infinity" ]

@@ -10,14 +10,12 @@ metadata:
   name: keyrock
 spec:
   ports:
-    - name: "3000"
+    - name: http
       port: 3000
       targetPort: 3000
-    - name: "443"
-      port: 443
-      targetPort: 443
   selector:
     io.kompose.service: keyrock
+    app: keyrock
   type: LoadBalancer
 status:
   loadBalancer: {}
