@@ -1,14 +1,16 @@
-import http.server
-import socketserver
+from flask import Flask
+from subprocess import run
+app = Flask(__name__)
 
-PORT = 3000
-class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        self.path = 'index.html'
-        return http.server.SimpleHTTPRequestHandler.do_GET(self)
+@app.route('/', methods=['GET'])
+def hello():
+    return "Hello World!"
 
-Handler = MyHttpRequestHandler
+@app.route('/read/<amount>', methods=['GET'])
+def read(amount):
+    data = run("tcpdump -c "+str(amount)+" -i eth0 -vvv",capture_output=True,shell=True)
+    return str(data.stdout)
 
-with socketserver.TCPServer(("", PORT), Handler) as httpd:
-    print("Http Server Serving at port", PORT)
-    httpd.serve_forever()
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=3000, debug=True)
