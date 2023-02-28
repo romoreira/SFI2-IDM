@@ -11,6 +11,4 @@ Based on: https://phoenixnap.com/kb/kubernetes-mysql
 
 
 ### Installing FlowMeter
-`git clone https://gitlab.com/hieulw/cicflowmeter`
-`cd cicflowmeter`
-`python setup.py install`
+pip3 install cicflowmeter

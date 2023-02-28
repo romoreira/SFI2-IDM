@@ -1,16 +1,18 @@
 from flask import (
     Flask, jsonify, render_template, request
 )
-import subprocess
+import subprocess, sys
 from subprocess import run
+import json
 
 app = Flask(__name__)
 import threading
 
+predictions = []
 
-class NewThreadedTask(threading.Thread):
+class ThreadPredictions(threading.Thread):
     def __init__(self):
-        super(NewThreadedTask, self).__init__()
+        super(ThreadPredictions, self).__init__()
 
     def run(self):
         # run some code here
@@ -40,26 +42,29 @@ class ThreadedFlowMeter(threading.Thread):
         self.predictor_ip = predictor_ip
         self.interface = interface
     def run(self):
+        cmd = 'cicflowmeter -i '+str(self.interface)+' -c flows.csv -u http://'+str(self.predictor_ip)+':8080/prediction'
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
 
-        command = 'cicflowmeter -i '+str(self.interface)+' -c flows.csv -u http://'+str(self.predictor_ip)+':8080/prediction'
 
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+@app.route('/predictions_list', methods=['GET'])
+def get_predictions_list():
+    return {'predictions': predictions}, 200
 
-        while True:
-            print("While true ever")
-            line = proc.stdout.read()
-            print("Line: "+str(line))
-            if not line:
-                break
-            else:
-                print("doing some stuff with...", line)
-                print("done for this line!")
+@app.route('/predictions', methods=['POST'])
+def predition_task():
+    content_type = request.headers.get('Content-Type')
+    if (content_type == 'application/json'):
+        json_string = request.json
+        print("JSON Recebido pelo prediction: " + str(json_string))
+        json_string = json.dumps(json_string, sort_keys=True)
+        predictions.append(json_string)
+        return {'result': 'ok'}
+    elif request.data:
+        print('JSON RECEIED:' + str(request.data))
+        return {"src_ip": "SOURCE_IP", "src_port": "SOURCE_PORT", "dst_ip": "DST_IP", "dst_port": "DST_PORT", "result": [0], "probability": [[0]]}
+    else:
+        return 'Content-Type not supported!'
 
-        #print("Running FlowMeter and sending Flow to "+str(self.predictor_ip) +" on interface: "+str(self.interface))
-        #process = subprocess.run(['cicflowmeter', '-i', str(self.interface), '-c', 'flows.csv', '-u', 'http://'+str(self.predictor_ip)+':8080/prediction'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
-        #output = process.stdout.read()
-        #print(str(output))
-        #return str(output)
 
 @app.route('/start/<predictor_ip>/<interface>', methods=['GET'])
 def start_flowmeter(predictor_ip, interface):
