@@ -1,4 +1,4 @@
-# SFI2-Security-Enhancements
+## SFI2 Security Enhancements
 
 kubectl delete deployment,svc mysql
 kubectl delete pvc mysql-pv-claim

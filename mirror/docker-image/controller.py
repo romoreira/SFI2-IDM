@@ -26,23 +26,44 @@ class ThreadedTCPDump(threading.Thread):
     def run(self):
         print("Running TCPDump with amout: "+str(self.amout))
         process = subprocess.run(['tcpdump', '-c', '10', '-i', 'eth0', '-vvv'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
-        output = process.stdout
+        output = process.stdout.read()
+        print(str(output))
         return str(output)
 
 class ThreadedFlowMeter(threading.Thread):
 
-    def __init__(self, predictor_ip):
+    predictor_ip = ""
+    interface = ""
+
+    def __init__(self, predictor_ip, interface):
         super(ThreadedFlowMeter, self).__init__()
         self.predictor_ip = predictor_ip
+        self.interface = interface
     def run(self):
-        print("Running FlowMeter and sending Flow to "+str(self.predictor_ip))
-        process = subprocess.run(['cicflowmeter', '-i', 'eth0', '-c', 'flows.csv', '-u', 'http://'+str(self.predictor_ip)+':8080/prediction'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
-        output = process.stdout
-        return str(output)
 
-@app.route('/start/<predictor_ip>', methods=['GET'])
-def start_flowmeter(predictor_ip):
-    flow_meter = ThreadedFlowMeter(predictor_ip)
+        command = 'cicflowmeter -i '+str(self.interface)+' -c flows.csv -u http://'+str(self.predictor_ip)+':8080/prediction'
+
+        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+
+        while True:
+            print("While true ever")
+            line = proc.stdout.read()
+            print("Line: "+str(line))
+            if not line:
+                break
+            else:
+                print("doing some stuff with...", line)
+                print("done for this line!")
+
+        #print("Running FlowMeter and sending Flow to "+str(self.predictor_ip) +" on interface: "+str(self.interface))
+        #process = subprocess.run(['cicflowmeter', '-i', str(self.interface), '-c', 'flows.csv', '-u', 'http://'+str(self.predictor_ip)+':8080/prediction'], check=True, stdout=subprocess.PIPE, universal_newlines=True)
+        #output = process.stdout.read()
+        #print(str(output))
+        #return str(output)
+
+@app.route('/start/<predictor_ip>/<interface>', methods=['GET'])
+def start_flowmeter(predictor_ip, interface):
+    flow_meter = ThreadedFlowMeter(predictor_ip, interface)
     flow_meter.start()
     #flow_meter.join()
     return {'status': 'ok', 'result': str("FlowMeter is Running")}, 200
