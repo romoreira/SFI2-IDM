@@ -8,7 +8,7 @@ app = Flask(__name__)
 import threading
 import requests
 import json
-
+#from model_trainer import load_model
 
 @app.route('/prediction', methods=['POST'])
 def predition_task():
