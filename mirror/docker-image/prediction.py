@@ -10,6 +10,17 @@ import requests
 import json
 #from model_trainer import load_model
 
+#For machine learning pourposes
+import pandas as pd
+from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt # for data visualization purposes
+import seaborn as sns # for data visualization
+from sklearn.preprocessing import StandardScaler
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import classification_report
+
 @app.route('/prediction', methods=['POST'])
 def predition_task():
     content_type = request.headers.get('Content-Type')
