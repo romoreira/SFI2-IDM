@@ -22,6 +22,8 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 import pickle
 
+prediction_ip = ""
+prediction_service = "Down"
 
 def load_model(model_name):
     # load the model from disk
@@ -37,19 +39,36 @@ def clean_dataset(df):
     return df[indices_to_keep].astype(np.float64)
 
 def do_predct(json_string):
-    print("JSON RECEBIDO NO DO_PREDICT:" +str(json_string))
+    #print("JSON RECEBIDO NO DO_PREDICT:" +str(json_string))
     #dict = json.loads(json_string)
     dict = json_string
+    #print("Colunas recebidas no JSON: "+str(dict['columns']))
     df = pd.DataFrame([], columns=dict['columns'])
     list = dict['data'][0]
     df = df.append(pd.DataFrame([list], columns=dict['columns']), ignore_index=True)
+
+    src_ip = df['src_ip']
+    dst_ip = df['dst_ip']
+
     X_test = clean_dataset(df)
     knn = load_model("saved_model/knn.pth")
     y_pred = knn.predict(X_test)
     print(y_pred)
-    return y_pred
+
+    return y_pred, src_ip, X_test['src_port'], dst_ip, X_test['dst_port']
 
 
+@app.route('/start_prediction/<predictor_ip>', methods=['GET'])
+def start_prediction_server(predictor_ip):
+    global prediction_ip
+    prediction_ip = predictor_ip
+    global prediction_service
+    prediction_service = "Up"
+    return {'Prediction Status': "started"}, 200
+
+@app.route('/prediction_status', methods=['GET'])
+def get_prediction_status():
+    return {'Prediction Service': str(prediction_service), 'Preditor IP': str(prediction_ip)}, 200
 
 @app.route('/prediction', methods=['POST'])
 def predition_task():
@@ -61,12 +80,12 @@ def predition_task():
     elif request.data:
         print('Data:' + str(request.data))
         json_string = request.get_json()
-        prediction_response = do_predct(json_string)
+        prediction, src_ip, src_port, dst_ip, dst_port = do_predct(json_string)
 
-        json_string = '{"src_ip": "SOURCE_IP", "src_port": "SOURCE_PORT", "dst_ip": "DST_IP", "dst_port": "DST_PORT", "result": [0], "probability": [[0]]}'
+        json_string = '{"src_ip": "'+str(src_ip)+'", "src_port": "'+str(src_port)+'"", "dst_ip": "'+str(dst_ip)+'"", "dst_port": '+str(dst_port)+'", "result": [1], "probability": [[0]]}'
         json_string = json.loads(json_string)
         print("Posting json_string to: "+str(json_string))
-        r = requests.post('http://68.219.96.1:3000/predictions', json=json_string)
+        r = requests.post('http://'+str(prediction_ip)+':3000/predictions', json=json_string)
         print("Posted Prediction to list: "+str(r.status_code))
         return json_string
     else:

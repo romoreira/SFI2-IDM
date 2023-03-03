@@ -9,16 +9,20 @@
           <option name="fileUrl" value="file://$PROJECT_DIR$/mirror/docker-image/Dockerfile" />
         </OpenedFileInfo>
         <OpenedFileInfo>
-          <option name="caretOffset" value="1052" />
-          <option name="fileUrl" value="file://$PROJECT_DIR$/mirror/docker-image/prediction.py" />
-        </OpenedFileInfo>
-        <OpenedFileInfo>
           <option name="caretOffset" value="0" />
           <option name="fileUrl" value="file://$PROJECT_DIR$/README.md" />
         </OpenedFileInfo>
         <OpenedFileInfo>
-          <option name="caretOffset" value="1119" />
+          <option name="caretOffset" value="887" />
           <option name="fileUrl" value="file://$PROJECT_DIR$/mirror/docker-image/controller.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="532" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/mirror/docker-image/apagar.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="1867" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/mirror/docker-image/prediction.py" />
         </OpenedFileInfo>
       </list>
     </option>
