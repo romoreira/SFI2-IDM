@@ -55,13 +55,13 @@ def get_predictions_list():
 def predition_task():
     content_type = request.headers.get('Content-Type')
     if (content_type == 'application/json'):
-        json_string = request.json
+        json_string = request.get_json()
         print("JSON Recebido pelo prediction: " + str(json_string))
-        json_string = json.dumps(json_string, sort_keys=True)
+        #json_string = json.dumps(json_string, sort_keys=True)
         predictions.append(json_string)
         return {'result': 'ok'}
     elif request.data:
-        print('JSON RECEIED:' + str(request.data))
+        print('JSON RECEIVED:' + str(request.data))
         return {"src_ip": "SOURCE_IP", "src_port": "SOURCE_PORT", "dst_ip": "DST_IP", "dst_port": "DST_PORT", "result": [0], "probability": [[0]]}
     else:
         return 'Content-Type not supported!'
