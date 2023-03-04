@@ -47,15 +47,17 @@ def do_predct(json_string):
     list = dict['data'][0]
     df = df.append(pd.DataFrame([list], columns=dict['columns']), ignore_index=True)
 
-    src_ip = df['src_ip']
-    dst_ip = df['dst_ip']
+    src_ip = df['src_ip'].values[0]
+    dst_ip = df['dst_ip'].values[0]
 
     X_test = clean_dataset(df)
     knn = load_model("saved_model/knn.pth")
     y_pred = knn.predict(X_test)
     print(y_pred)
+    #probability = knn.predict_proba([X_test])
+    probability = 2
 
-    return y_pred, src_ip, X_test['src_port'], dst_ip, X_test['dst_port']
+    return y_pred, src_ip, int(X_test['src_port'].values[0]), dst_ip, int(X_test['dst_port'].values[0]), probability
 
 
 @app.route('/start_prediction/<predictor_ip>', methods=['GET'])
@@ -80,12 +82,20 @@ def predition_task():
     elif request.data:
         print('Data:' + str(request.data))
         json_string = request.get_json()
-        prediction, src_ip, src_port, dst_ip, dst_port = do_predct(json_string)
 
-        json_string = '{"src_ip": "'+str(src_ip)+'", "src_port": "'+str(src_port)+'"", "dst_ip": "'+str(dst_ip)+'"", "dst_port": '+str(dst_port)+'", "result": [1], "probability": [[0]]}'
-        json_string = json.loads(json_string)
-        print("Posting json_string to: "+str(json_string))
-        r = requests.post('http://'+str(prediction_ip)+':3000/predictions', json=json_string)
+        prediction, src_ip, src_port, dst_ip, dst_port, probability = do_predct(json_string)
+        print("Probability: "+str(probability))
+        print("Prediction: "+str(prediction))
+        features = ['Benign', 'Malignant', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7']
+
+        json_string = '"src_ip": '+str(src_ip)+', "src_port": '+int(src_port)+', "dst_ip": '+str(dst_ip)+', "dst_port": '+int(dst_port)+', "result": '+features[int(prediction)]+', "probability": [[1]]'
+        json_string2 = json.dumps({'src_ip': str(src_ip), 'src_port': str(src_port), 'dst_ip': str(dst_ip), 'dst_port': str(dst_port), 'result': str(features[int(prediction)]), 'probability': [[]]}, indent=5)
+        print("JSON STING AFTER AGGREGATION: "+str(json_string))
+        print("JSON STING 2 AFTER AGGREGATION: " + str(json_string2))
+        #json_string = '{"src_ip": "'+str(src_ip)+'", "src_port": "'+str(src_port)+'"", "dst_ip": "'+str(dst_ip)+'"", "dst_port": '+str(dst_port)+'", "result": [1], "probability": [[0]]}'
+        #json_string = json.loads(json_string)
+        print("Posting json_string to: "+str(json_string2))
+        r = requests.post('http://'+str(prediction_ip)+':3000/predictions', json=json_string2)
         print("Posted Prediction to list: "+str(r.status_code))
         return json_string
     else:

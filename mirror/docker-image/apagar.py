@@ -1,15 +1,10 @@
-import pandas as pd
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt # for data visualization purposes
-import seaborn as sns # for data visualization
-from sklearn.preprocessing import StandardScaler
-import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-from sklearn.metrics import classification_report
-import pickle
+src_ip = "192"
+src_port = "1"
+dst_ip = "168"
+dst_port = "2"
 
-def load_model(model_name):
-    # load the model from disk
-    knn = pickle.load(open(model_name, 'rb'))
-    return knn
+features = ['Benign','Malignant', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7']
+
+
+json_string = f"""{{"src_ip": {str(src_ip)}, "src_port": {str(src_port)}, "dst_ip": {str(dst_ip)}, "dst_port": {str(dst_port)}, "result": {features[0]}, "probability": {[[1]]}}}"""
+print("JSON"+str(json_string))
