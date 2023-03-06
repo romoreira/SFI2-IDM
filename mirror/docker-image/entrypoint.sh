@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 /home/server.py
+python3 /home/api.py
